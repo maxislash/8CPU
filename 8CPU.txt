@@ -1,0 +1,31 @@
+Here is the log of the design of an 8-bit CPU I want to design using VHDL and Vivado.
+
+My last VHDL project was a branch predictor less than a year ago. I want to do this on my own to brush up my digital design skills.
+
+I had the idea of this project from my friend who did the same using Verilog (maybe my next project who knows) https://sergeev.io/projects/v8cpu/
+
+First question: Von Neumann or Harvard?
+Von Neumann is easier and I am not looking for the most efficient. I know Von Neumann can create a bottleneck at the RAM but I don't really care for this project.
+
+There will be 16 8-bit registers, so 4 bits are needed for the register addresses.
+The processor is register-register, so two registers can be addressed in an instruction.
+
+For now, the opcode will be on 8-bits.
+
+The memory address is coded on 16 bits, so the size is 2^16 = 256 bits - 32 octets.
+
+The two last registers are used to address the memory. So if the program wants to store the result in the memory or take the data from the memory, the two 
+
+Now, let's start the instruction set:
+
+	Arithmetic:
+	addition:		0000 0000 AAAA BBBB | add RA, RB | RA <= RA + RB
+	substraction:	0000 0001 AAAA BBBB | sub RA, RB | RA <= RA - RB
+	and:			0000 0010 AAAA BBBB | and RA, RB | RA <= RA & RB
+	or:				0000 0011 AAAA BBBB | or RA, RB  | RA <= RA | RB
+	xor:			0000 0100 AAAA BBBB | xor RA, RB | RA <= RA ^ RB
+	not:			0000 0101 AAAA xxxx | not RA     | RA <= ~RA
+
+	Move
+	reg to reg 		0001 0000 AAAA BBBB | RA <= RB
+	mem to reg 		0001 0001 AAAA xxxx | RA <= Mem[R14-R15]
