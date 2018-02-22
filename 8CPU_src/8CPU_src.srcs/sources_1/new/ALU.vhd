@@ -1,6 +1,5 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Engineer: Maxime Descos
 -- 
 -- Create Date: 19.02.2018 05:23:24
 -- Design Name: 
@@ -23,14 +22,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity ALU is
     Port ( op : in STD_LOGIC_VECTOR (3 downto 0);
@@ -51,12 +42,14 @@ constant OP_XOR : std_logic_vector(3 downto 0):="0100";
 constant OP_NOT : std_logic_vector(3 downto 0):="0101";
 constant OP_CMP : std_logic_vector(3 downto 0):="0110";
 
-constant EQ_BIT : std_logic_vector(3 downto 0):="0110";
-constant GRT_BIT : std_logic_vector(3 downto 0):="0110";
+constant EQ_BIT : integer := 0;
+constant GRT_BIT : integer := 1;
 
 signal result : UNSIGNED(7 downto 0) := (others => '0'); 
 
 begin
+
+newFlags <= flags;
 
     process(op, A, B)
 
@@ -69,7 +62,8 @@ begin
             when OP_OR  => result <= A or B;
             when OP_XOR => result <= A xor B;
             when OP_NOT => result <= not(A);
-            when OP_CMP => result <= A + B;
+            when OP_CMP => newFlags(EQ_BIT) <= '1' when (A = B) else '0';
+                           newFlags(GRT_BIT) <= '1' when (A > B) else '0';
             when others => result <= (others => '0');
         end case;
     end process;

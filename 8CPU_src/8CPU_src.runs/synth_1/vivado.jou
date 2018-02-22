@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2017.4 (64-bit)
+# SW Build 2086221 on Fri Dec 15 20:55:39 MST 2017
+# IP Build 2085800 on Fri Dec 15 22:25:07 MST 2017
+# Start of session at: Wed Feb 21 07:52:00 2018
+# Process ID: 11688
+# Current directory: C:/Users/MaxEE/Projets/Digital Design/8CPU/8CPU_src/8CPU_src.runs/synth_1
+# Command line: vivado.exe -log ALU.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source ALU.tcl
+# Log file: C:/Users/MaxEE/Projets/Digital Design/8CPU/8CPU_src/8CPU_src.runs/synth_1/ALU.vds
+# Journal file: C:/Users/MaxEE/Projets/Digital Design/8CPU/8CPU_src/8CPU_src.runs/synth_1\vivado.jou
+#-----------------------------------------------------------
+source ALU.tcl -notrace
