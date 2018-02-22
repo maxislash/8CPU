@@ -49,12 +49,10 @@ signal result : UNSIGNED(7 downto 0) := (others => '0');
 
 begin
 
-newFlags <= flags;
-
-    process(op, A, B)
-
+    process(op, A, B, flags)
     begin
-
+        result <= (others => '0');
+        newFlags <= flags;
         case op is
             when OP_ADD => result <= A + B;
             when OP_SUB => result <= A - B;
