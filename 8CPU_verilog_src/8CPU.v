@@ -44,4 +44,28 @@ endmodule
 
 
 
-	
+module mem(
+	input	clk,
+	input	rw,
+	input [15:0]	addr,
+	inout [7:0]		data,
+	);
+
+	reg [7:0]	data_out;
+
+	parameter	DATA_WIDTH = 8;
+				ADDR_WIDTH = 8;
+				RAM_DEPTH = 1 << ADDR_WIDTH;
+
+	reg [DATA_WIDTH-1:0]	mem[0:RAM_DEPTH-1];
+
+	always @(posedge clk) begin
+		if(rw) begin
+			mem[addr]	=	data;
+		end
+		else begin
+			data	=	mem[addr];
+		end
+	end
+
+endmodule
