@@ -48,10 +48,11 @@ module mem(
 	input	clk,
 	input	rw,
 	input [15:0]	addr,
-	inout [7:0]		data,
+	input [7:0]		data,
+	output [7:0]	q,
 	);
 
-	reg [7:0]	data_out;
+	reg [7:0]	q;
 
 	parameter	DATA_WIDTH = 8;
 				ADDR_WIDTH = 8;
@@ -60,11 +61,10 @@ module mem(
 	reg [DATA_WIDTH-1:0]	mem[0:RAM_DEPTH-1];
 
 	always @(posedge clk) begin
-		if(rw) begin
+		if(rw) 
 			mem[addr]	=	data;
-		end
-		else begin
-			data	=	mem[addr];
+
+		q	=	mem[addr];
 		end
 	end
 
