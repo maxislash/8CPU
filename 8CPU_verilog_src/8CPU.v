@@ -69,3 +69,39 @@ module mem(
 	end
 
 endmodule
+
+module pc(
+	input clk,
+	input [1:0} op,
+	input [7:0]	k,
+	output [15:0] addr_instr)
+
+	reg [15:0]	next_addr;
+	reg	[15:0]	addr_instr;
+
+	parameter 	RESET		= 2'b00; 
+				NOTHING 	= 2'b01;
+				INCREMENT 	= 2'b10;
+				JUMP 		= 2'b11;
+
+
+	always @(posedge clk) begin
+			addr_instr <= next_addr;
+	end
+
+	always @(op or k) begin
+		case(op)
+			RESET: 		next_addr = 'd0;
+			NOTHING:	next_addr = addr_instr;
+			INCREMENT:	next_addr = addr_instr + 2;
+			JUMP: begin
+					if(k[7]) begin
+						next_addr = addr_instr - ((~(k[6:0]) + 1) << 1);
+					end
+					else
+						next_addr = addr_instr + (k[6:0] << 1);
+				end
+		endcase
+	end
+
+endmodule
