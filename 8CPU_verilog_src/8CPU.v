@@ -11,6 +11,7 @@ module alu(
 	output [7:0] 	newFlags);
 
 	reg [7:0]	C;
+	reg [7:0] 	newFlags;
 
 	parameter	ALU_OP_ADD	= 4'b0000,
 				ALU_OP_SUB	= 4'b0001,
@@ -20,12 +21,12 @@ module alu(
 				ALU_OP_NOT	= 4'b0101,
 				ALU_OP_CMP	= 4'b0110;
 
-	parameter	EQ_BIT	=	'd0;
+	parameter	EQ_BIT	=	'd0,
 				GRT_BIT	=	'd1;
 
 	always @(op or A or B or flags) begin
 		C = A;
-		flags = newFlags;
+		newFlags = Flags;
 		case(op)
 			ALU_OP_ADD	:	C =	A + B;
 			ALU_OP_SUB	:	C = A - B;
@@ -49,13 +50,12 @@ module mem(
 	input	rw,
 	input [15:0]	addr,
 	input [7:0]		data,
-	output [7:0]	q,
-	);
+	output [7:0]	q);
 
 	reg [7:0]	q;
 
-	parameter	DATA_WIDTH = 8;
-				ADDR_WIDTH = 8;
+	parameter	DATA_WIDTH = 8,
+				ADDR_WIDTH = 8,
 				RAM_DEPTH = 1 << ADDR_WIDTH;
 
 	reg [DATA_WIDTH-1:0]	mem[0:RAM_DEPTH-1];
@@ -63,8 +63,8 @@ module mem(
 	always @(posedge clk) begin
 		if(rw) 
 			mem[addr]	=	data;
-
-		q	=	mem[addr];
+		else begin
+			q	=	mem[addr];
 		end
 	end
 
@@ -72,16 +72,16 @@ endmodule
 
 module pc(
 	input clk,
-	input [1:0} op,
+	input [1:0] op,
 	input [7:0]	k,
-	output [15:0] addr_instr)
+	output [15:0] addr_instr);
 
 	reg [15:0]	next_addr;
 	reg	[15:0]	addr_instr;
 
-	parameter 	RESET		= 2'b00; 
-				NOTHING 	= 2'b01;
-				INCREMENT 	= 2'b10;
+	parameter 	RESET		= 2'b00,
+				NOTHING 	= 2'b01,
+				INCREMENT 	= 2'b10,
 				JUMP 		= 2'b11;
 
 
