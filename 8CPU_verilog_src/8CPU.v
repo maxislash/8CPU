@@ -7,8 +7,8 @@ module alu(
 	input [7:0] 	A 	,
 	input [7:0] 	B 	,
 	input [7:0] 	flags,
-	output [7:0] 	C,
-	output [7:0] 	newFlags);
+	 output reg [7:0] 	C,
+	 output reg [7:0] 	newFlags);
 
 	reg [7:0]	C;
 	reg [7:0] 	newFlags;
@@ -50,7 +50,7 @@ module mem(
 	input	rw,
 	input [15:0]	addr,
 	input [7:0]		data,
-	output [7:0]	q);
+	 output reg [7:0]	q);
 
 	reg [7:0]	q;
 
@@ -74,7 +74,7 @@ module pc(
 	input clk,
 	input [1:0] op,
 	input [7:0]	k,
-	output [15:0] addr_instr);
+	 output reg [15:0] addr_instr);
 
 	reg [15:0]	next_addr;
 	reg	[15:0]	addr_instr;
@@ -101,6 +101,78 @@ module pc(
 					else
 						next_addr = addr_instr + (k[6:0] << 1);
 				end
+		endcase
+	end
+
+endmodule
+
+module control_unit(
+	input clk,
+	output reg [1:0] op_pc,
+	output reg [7:0] k,
+	output reg [3:0] op_alu,
+	output reg [7:0] a_alu,
+	output reg [7:0] b_alu,
+	output reg [7:0] flags,
+	input [7:0]	newFlags,
+	output reg rw,
+	output reg [15:0] mem_addr,
+	output reg [7:0] mem_data,
+	input [7:0] q
+	);
+
+	reg [7:0] registers[0:15];
+
+	reg [3:0] state;
+	reg [3:0] nextState;
+
+	reg [15:0] instruction;
+
+	reg [1:0] m_op_pc,
+	reg [7:0] m_k,
+	reg [3:0] m_op_alu,
+	reg [7:0] m_a_alu,
+	reg [7:0] m_b_alu,
+	reg [7:0] m_flags,
+	reg m_rw,
+	reg [15:0] m_mem_addr,
+	reg [7:0] m_mem_data,
+
+	parameter	STATE_INIT			= 4'b0000,
+				STATE_FETCH_LO		= 4'b0001,
+				STATE_FETCH_LO_READ	= 4'b0010,
+				STATE_FETCH_HI		= 4'b0011,
+				STATE_FETCH_HI_READ	= 4'b0100,
+				STATE_DECODE		= 4'b0101,
+				STATE_ALU			= 4'b0110,
+				STATE_JUMP			= 4'b0111,
+				STATE_MOVE_RTR		= 4'b1000,
+				STATE_MOVE_MTR		= 4'b1001,
+				STATE_MOVE_RTM		= 4'b1010,
+				STATE_MOVE_IMM		= 4'b1011;
+
+	always @(state or addr_instr or q) begin
+
+		m_op_pc = 2'b01;
+		m_k = 'd0;
+		m_op_alu = instruction[11:8];
+		m_a_alu = registers[instruction[7:4]];
+		m_b_alu = registers[instruction[3:0]];
+		m_flags = newFlags;
+		m_rw = 1'b0;
+		m_mem_data = 'd0;
+		m_mem_addr =  registers[14:15];
+
+		case(state)
+			STATE_INIT: begin
+				
+			end
+
+			STATE_FETCH_LO: begin
+				op_pc = 2'b01;
+				instruction[7:0] = q 
+				nextState = STATE_FETCH_LO_READ;
+			end
 		endcase
 	end
 
