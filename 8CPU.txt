@@ -19,13 +19,21 @@ The two last registers are used to address the memory. So if the program wants t
 Now, let's start the instruction set:
 
 	Arithmetic:
-	addition:		0000 0000 AAAA BBBB | add RA, RB | RA <= RA + RB
-	substraction:	0000 0001 AAAA BBBB | sub RA, RB | RA <= RA - RB
-	and:			0000 0010 AAAA BBBB | and RA, RB | RA <= RA & RB
-	or:				0000 0011 AAAA BBBB | or RA, RB  | RA <= RA | RB
-	xor:			0000 0100 AAAA BBBB | xor RA, RB | RA <= RA ^ RB
-	not:			0000 0101 AAAA xxxx | not RA     | RA <= ~RA
+	addition		0000 0000 AAAA BBBB | add RA, RB | RA <= RA + RB
+	substraction	0000 0001 AAAA BBBB | sub RA, RB | RA <= RA - RB
+	and 			0000 0010 AAAA BBBB | and RA, RB | RA <= RA & RB
+	or				0000 0011 AAAA BBBB | or RA, RB  | RA <= RA | RB
+	xor				0000 0100 AAAA BBBB | xor RA, RB | RA <= RA ^ RB
+	not				0000 0101 AAAA xxxx | not RA     | RA <= ~RA
+	cmp 			0000 0110 AAAA BBBB | cmp RA, RB | newFlags[EQ_BIT] = (RA == RB);
+													   newFlags[GRT_BIT] = (RA > RB);
 
-	Move
-	reg to reg 		0001 0000 AAAA BBBB | RA <= RB
-	mem to reg 		0001 0001 AAAA xxxx | RA <= Mem[R14-R15]
+	Move:
+	reg to reg 		0001 0000 AAAA BBBB | mov RA, RB 	| RA <= RB
+	mem to reg 		0001 0001 AAAA xxxx | mov MEM, RA 	| RA <= Mem[R14:R15]
+	reg to mem      0001 0010 AAAA xxxx | mov RA, MEM 	| Mem[R14:R15] <= RA
+	immediate		0010 AAAA DDDD DDDD | mov RA, D 	| RA <= D
+
+	Branch:
+	jump 			0100 0000 KKKK KKKK | jmp k 		| PC <= PC + K (K is two's complemented)
+				
