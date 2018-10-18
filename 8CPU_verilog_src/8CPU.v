@@ -65,35 +65,6 @@ module mem(
 
 endmodule
 
-// module pc(
-// 	input [1:0] op,
-// 	input [7:0]	k,
-// 	output reg [15:0] IP);
-
-// 	reg [15:0]	n_IP;
-
-// 	parameter 	RESET		= 2'b00,
-// 				NOTHING 	= 2'b01,
-// 				INCREMENT 	= 2'b10,
-// 				JUMP 		= 2'b11;
-
-// 	always @(op or k) begin
-// 		case(op)
-// 			RESET: 		IP = 'd0;
-// 			NOTHING:	IP = IP;
-// 			INCREMENT:	next_IP = IP + 2;
-// 			JUMP: begin
-// 					if(k[7]) begin
-// 						next_IP = IP - ((~(k[6:0]) + 1) << 1);
-// 					end
-// 					else
-// 						next_IP = IP + (k[6:0] << 1);
-// 				end
-// 		endcase
-// 	end
-
-// endmodule
-
 module control_unit(
 	input clk,
 	input rst,
@@ -258,6 +229,13 @@ module control_unit(
 				m_IP = m_IP + 2;
 				nextState = STATE_FETCH_LO;
 			end
+
+			STATE_JUMP: begin
+				if(k[7]) next_IP = IP - ((~(k[6:0]) + 1) << 1);
+ 				else next_IP = IP + (k[6:0] << 1);
+ 				end
+			end
+
 		endcase
 	end
 
