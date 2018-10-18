@@ -153,7 +153,7 @@ module control_unit(
 	always @(state or IP or mem_Q) begin
 
 		// Default assignements
-		m_mem_rw = 1'b0;
+		m_mem_rw = 0;
 		m_IP = IP;
 		m_flags = CPU_flags;
 
@@ -182,22 +182,33 @@ module control_unit(
 			STATE_DECODE: begin
 				case(instruction[15:12])
 
-					INSTR_ALU: begin
-						nextState = STATE_ALU;
-					end
+					INSTR_ALU: nextState = STATE_ALU;
 
 					INSTR_MOVE: begin
-						nextState = STATE_MOVE;
+						case(instruction[11:8])
+							4'b0000: begin 			//reg to reg
+								nextState = STATE_EXE_MOVE_RTR;
+							end
+
+							4'b0001: begin 			// mem to reg
+								m_mem_addr = {registers[14], registers[15]};
+								m_RegisterAddr = instruction[7:4];
+
+								nextState = STATE_EXE_MOVE_MTR;
+							end
+
+							4'b0010: begin 			// reg to mem
+								m_mem_rw = 1;
+								m_mem_addr = {registers[14], registers[15]};
+								m_mem_data = registers[instruction[7:4]];
+
+								nextState = STATE_EXE_MOVE_RTM;
+							end					
 					end
 
-					INSTR_MOVEI: begin
-						nextState = STATE_MOVE_IMM;
-					end
-
-
-					INSTR_JUMP: begin
-						nextState = STATE_JUMP;
-					end
+					INSTR_MOVEI: nextState = STATE_MOVE_IMM;
+					
+					INSTR_JUMP: nextState = STATE_JUMP;
 			end
 
 			STATE_ALU: begin
@@ -213,13 +224,39 @@ module control_unit(
 				nextState = STATE_FETCH_LO;
 			end
 
-			STATE_MOVE: begin
-				case(instruction[11:8])
-					4'b0000: begin 			//reg to reg
-						m_RegisterAddr = instruction[7:4];
-						m_RegisterData = registers[instruction[3:0]];
-					end
-				endcase
+			STATE_EXE_MOVE_RTR: begin
+				m_RegisterAddr = instruction[7:4];
+				m_RegisterData = registers[instruction[3:0]];
+
+				m_IP = m_IP + 2;
+				nextState = STATE_FETCH_LO;
+			end
+
+			STATE_EXE_MOVE_MTR: begin 			
+				m_mem_addr = {registers[14], registers[15]};
+				m_RegisterAddr = instruction[7:4];
+
+				m_RegisterData = mem_Q;
+
+				m_IP = m_IP + 2;
+				nextState = STATE_FETCH_LO;
+			end
+
+			STATE_EXE_MOVE_RTM: begin
+				m_mem_rw = 1;
+				m_mem_addr = {registers[14], registers[15]};
+				m_mem_data = registers[instruction[7:4]];
+
+				m_IP = m_IP + 2;
+				nextState = STATE_FETCH_LO;
+			end
+
+			STATE_MOVE_IMM: begin
+				m_RegisterAddr = instruction[11:8];
+				m_RegisterData = instruction[7:0]
+
+				m_IP = m_IP + 2;
+				nextState = STATE_FETCH_LO;
 			end
 		endcase
 	end
