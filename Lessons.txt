@@ -1,0 +1,3 @@
+Lessons: (what did I learn in that project)
+
+	- clearly separate combinational and sequential parts. No outputs or inside real registers should be updated during the combinational. Instead use intermediate variable to hold the values.
