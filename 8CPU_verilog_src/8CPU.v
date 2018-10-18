@@ -23,7 +23,7 @@ module alu(
 
 	always @(op or A or B or flags) begin
 		C = A;
-		newFlags = Flags;
+		newFlags = flags;
 		case(op)
 			ALU_OP_ADD	:	C =	A + B;
 			ALU_OP_SUB	:	C = A - B;
@@ -69,7 +69,7 @@ module control_unit(
 	input clk,
 	input rst,
 
-	output reg [3:0] alu_op
+	output reg [3:0] alu_op,
 	output reg [7:0] alu_a,
 	output reg [7:0] alu_b,
 	output reg [7:0] alu_flags,
@@ -90,6 +90,7 @@ module control_unit(
 	reg [15:0] IP;
 
 	reg [15:0] m_IP;
+	reg [15:0] calc_IP;
 
 	reg [3:0] m_alu_op;
 	reg [7:0] m_alu_a;
@@ -120,6 +121,14 @@ module control_unit(
 				INSTR_MOVEI = 4'b0010,
 				INSTR_JUMP	= 4'b0100;
 
+	parameter	JUMP				= 4'b0000,
+				JUMP_IF_EQUAL 		= 4'b0001,
+				JUMP_IF_NOT_EQUAL	= 4'b0010,
+				JUMP_IF_GREATER 	= 4'b0011,
+				JUMP_IF_NOT_GREATER	= 4'b0100;
+
+	parameter	EQ_BIT	=	'd0,
+				GRT_BIT	=	'd1;
 
 	always @(state or IP or mem_Q) begin
 
@@ -174,12 +183,14 @@ module control_unit(
 								m_mem_data = registers[instruction[7:4]];
 
 								nextState = STATE_EXE_MOVE_RTM;
-							end					
+							end	
+						endcase				
 					end
 
 					INSTR_MOVEI: nextState = STATE_MOVE_IMM;
 					
 					INSTR_JUMP: nextState = STATE_JUMP;
+				endcase
 			end
 
 			STATE_ALU: begin
@@ -224,16 +235,39 @@ module control_unit(
 
 			STATE_MOVE_IMM: begin
 				m_RegisterAddr = instruction[11:8];
-				m_RegisterData = instruction[7:0]
+				m_RegisterData = instruction[7:0];
 
 				m_IP = m_IP + 2;
 				nextState = STATE_FETCH_LO;
 			end
 
 			STATE_JUMP: begin
-				if(k[7]) next_IP = IP - ((~(k[6:0]) + 1) << 1);
- 				else next_IP = IP + (k[6:0] << 1);
- 				end
+				if(k[7]) calc_IP = m_IP - ((~(k[6:0]) + 1) << 1);
+ 				else calc_IP = m_IP + (k[6:0] << 1);	
+
+ 				m_IP = m_IP + 2;
+				case(instruction[11:8])
+					JUMP: begin
+						m_IP = calc_IP;
+					end
+
+					JUMP_IF_EQUAL: begin
+						if (CPU_flags[EQ_BIT]) m_IP = calc_IP;
+					end
+
+					JUMP_IF_NOT_EQUAL: begin
+						if (!CPU_flags[EQ_BIT]) m_IP = calc_IP;
+					end
+
+					JUMP_IF_GREATER: begin
+						if (CPU_flags[GRT_BIT]) m_IP = calc_IP;
+					end
+
+					JUMP_IF_NOT_GREATER: begin
+						if (!CPU_flags[GRT_BIT]) m_IP = calc_IP;
+					end
+ 				endcase
+ 				nextState = STATE_FETCH_LO;
 			end
 
 		endcase

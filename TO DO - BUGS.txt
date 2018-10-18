@@ -1,6 +1,5 @@
 TO DO:
 	
-	- Branch instructions
 	- sequential bloc in control unit
 	- IO, or at least debugging tools
 	- simulation
