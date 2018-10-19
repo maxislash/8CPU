@@ -72,7 +72,7 @@ module control_unit(
 	output reg [3:0] alu_op,
 	output reg [7:0] alu_a,
 	output reg [7:0] alu_b,
-	output reg [7:0] alu_flags,
+	output [7:0] alu_flags,
 	input [7:0]	alu_newFlags,
 	input [7:0] alu_c,
 
@@ -91,6 +91,8 @@ module control_unit(
 
 	reg [15:0] m_IP;
 	reg [15:0] calc_IP;
+	reg [7:0] m_instruction_lo;
+	reg [7:0] m_instruction_hi;
 
 	reg [3:0] m_alu_op;
 	reg [7:0] m_alu_a;
@@ -130,123 +132,127 @@ module control_unit(
 	parameter	EQ_BIT	=	'd0,
 				GRT_BIT	=	'd1;
 
-	always @(state or IP or mem_Q) begin
+	assign alu_flags = CPU_flags;
+
+	always @(CPU_state or IP or mem_Q) begin
 
 		// Default assignements
 		m_mem_rw = 0;
 		m_IP = IP;
 		m_flags = CPU_flags;
+		m_instruction_lo = CPU_instruction[7:0];
+		m_instruction_hi = CPU_instruction[15:8];
 
-		case(state)
+		case(CPU_state)
 
 			STATE_FETCH_LO: begin
-				m_mem_addr = IP;
-				nextState = STATE_FETCH_LO_READ;
+				m_mem_addr = m_IP;
+				CPU_nextState = STATE_FETCH_LO_READ;
 			end
 
 			STATE_FETCH_LO_READ: begin
-				instruction[7:0] = mem_Q;
-				nextState = STATE_FETCH_HI;
+				m_instruction_lo = mem_Q;
+				CPU_nextState = STATE_FETCH_HI;
 			end
 
 			STATE_FETCH_HI: begin
-				m_mem_addr = IP + 1;
-				nextState = STATE_FETCH_HI_READ;
+				m_mem_addr = m_IP + 1;
+				CPU_nextState = STATE_FETCH_HI_READ;
 			end
 
 			STATE_FETCH_HI_READ: begin
-				instruction[15:8] = mem_Q;
-				nextState = STATE_DECODE;
+				m_instruction_hi = mem_Q;
+				CPU_nextState = STATE_DECODE;
 			end
 
 			STATE_DECODE: begin
-				case(instruction[15:12])
+				case(CPU_instruction[15:12])
 
-					INSTR_ALU: nextState = STATE_ALU;
+					INSTR_ALU: CPU_nextState = STATE_EXE_ALU;
 
 					INSTR_MOVE: begin
-						case(instruction[11:8])
+						case(CPU_instruction[11:8])
 							4'b0000: begin 			//reg to reg
-								nextState = STATE_EXE_MOVE_RTR;
+								CPU_nextState = STATE_EXE_MOVE_RTR;
 							end
 
 							4'b0001: begin 			// mem to reg
-								m_mem_addr = {registers[14], registers[15]};
-								m_RegisterAddr = instruction[7:4];
+								m_mem_addr = {CPU_registers[14], CPU_registers[15]};
+								m_RegisterAddr = CPU_instruction[7:4];
 
-								nextState = STATE_EXE_MOVE_MTR;
+								CPU_nextState = STATE_EXE_MOVE_MTR;
 							end
 
 							4'b0010: begin 			// reg to mem
 								m_mem_rw = 1;
-								m_mem_addr = {registers[14], registers[15]};
-								m_mem_data = registers[instruction[7:4]];
+								m_mem_addr = {CPU_registers[14], CPU_registers[15]};
+								m_mem_data = CPU_registers[CPU_instruction[7:4]];
 
-								nextState = STATE_EXE_MOVE_RTM;
+								CPU_nextState = STATE_EXE_MOVE_RTM;
 							end	
 						endcase				
 					end
 
-					INSTR_MOVEI: nextState = STATE_MOVE_IMM;
+					INSTR_MOVEI: CPU_nextState = STATE_EXE_MOVE_IMM;
 					
-					INSTR_JUMP: nextState = STATE_JUMP;
+					INSTR_JUMP: CPU_nextState = STATE_EXE_JUMP;
 				endcase
 			end
 
-			STATE_ALU: begin
-				m_alu_op = instruction[11:8];
-				m_alu_a = registers[instruction[7:4]];
-				m_alu_b = registers[instruction[3:0]];
+			STATE_EXE_ALU: begin
+				alu_op = CPU_instruction[11:8];
+				alu_a = CPU_registers[CPU_instruction[7:4]];
+				alu_b = CPU_registers[CPU_instruction[3:0]];
 				
 				m_RegisterData = alu_c;
-				m_RegisterAddr = instruction[7:4];
+				m_RegisterAddr = CPU_instruction[7:4];
 				m_flags = alu_newFlags;
 
 				m_IP = m_IP + 2;
-				nextState = STATE_FETCH_LO;
+				CPU_nextState = STATE_FETCH_LO;
 			end
 
 			STATE_EXE_MOVE_RTR: begin
-				m_RegisterAddr = instruction[7:4];
-				m_RegisterData = registers[instruction[3:0]];
+				m_RegisterAddr = CPU_instruction[7:4];
+				m_RegisterData = CPU_registers[CPU_instruction[3:0]];
 
 				m_IP = m_IP + 2;
-				nextState = STATE_FETCH_LO;
+				CPU_nextState = STATE_FETCH_LO;
 			end
 
 			STATE_EXE_MOVE_MTR: begin 			
-				m_mem_addr = {registers[14], registers[15]};
-				m_RegisterAddr = instruction[7:4];
+				m_mem_addr = {CPU_registers[14], CPU_registers[15]};
+				m_RegisterAddr = CPU_instruction[7:4];
 
 				m_RegisterData = mem_Q;
 
 				m_IP = m_IP + 2;
-				nextState = STATE_FETCH_LO;
+				CPU_nextState = STATE_FETCH_LO;
 			end
 
 			STATE_EXE_MOVE_RTM: begin
 				m_mem_rw = 1;
-				m_mem_addr = {registers[14], registers[15]};
-				m_mem_data = registers[instruction[7:4]];
+				m_mem_addr = {CPU_registers[14], CPU_registers[15]};
+				m_mem_data = CPU_registers[CPU_instruction[7:4]];
 
 				m_IP = m_IP + 2;
-				nextState = STATE_FETCH_LO;
+				CPU_nextState = STATE_FETCH_LO;
 			end
 
-			STATE_MOVE_IMM: begin
-				m_RegisterAddr = instruction[11:8];
-				m_RegisterData = instruction[7:0];
+			STATE_EXE_MOVE_IMM: begin
+				m_RegisterAddr = CPU_instruction[11:8];
+				m_RegisterData = CPU_instruction[7:0];
 
 				m_IP = m_IP + 2;
-				nextState = STATE_FETCH_LO;
+				CPU_nextState = STATE_FETCH_LO;
 			end
 
-			STATE_JUMP: begin
-				if(k[7]) calc_IP = m_IP - ((~(k[6:0]) + 1) << 1);
- 				else calc_IP = m_IP + (k[6:0] << 1);	
+			STATE_EXE_JUMP: begin
+				if(CPU_instruction[7]) calc_IP = m_IP - ((~(CPU_instruction[6:0]) + 1) << 1);
+ 				else calc_IP = m_IP + (CPU_instruction[6:0] << 1);	
 
  				m_IP = m_IP + 2;
-				case(instruction[11:8])
+				case(CPU_instruction[11:8])
 					JUMP: begin
 						m_IP = calc_IP;
 					end
@@ -267,10 +273,56 @@ module control_unit(
 						if (!CPU_flags[GRT_BIT]) m_IP = calc_IP;
 					end
  				endcase
- 				nextState = STATE_FETCH_LO;
+ 				CPU_nextState = STATE_FETCH_LO;
 			end
 
 		endcase
+	end
+
+	integer i;
+	
+	always @(posedge clk) begin
+		if (rst) begin
+			// reset
+			CPU_registers[0] <= 'd0; CPU_registers[1] <= 'd0;
+			CPU_registers[2] <= 'd0; CPU_registers[3] <= 'd0;
+			CPU_registers[4] <= 'd0; CPU_registers[5] <= 'd0;
+			CPU_registers[6] <= 'd0; CPU_registers[7] <= 'd0;
+			CPU_registers[8] <= 'd0; CPU_registers[9] <= 'd0;
+			CPU_registers[10] <= 'd0; CPU_registers[11] <= 'd0;
+			CPU_registers[12] <= 'd0; CPU_registers[13] <= 'd0;
+			CPU_registers[14] <= 'd0; CPU_registers[15] <= 'd0;
+			IP <= 16'h0000;
+			CPU_flags <= 'd0;
+			CPU_state <= 'd0;
+			mem_addr <= 'd0;
+			mem_data <= 'd0;
+			mem_rw <= 0;
+			CPU_instruction <= 'd0;
+			
+		end
+		else begin
+			CPU_state <= CPU_nextState;
+			CPU_flags <= m_flags;
+			CPU_registers[m_RegisterAddr] <= m_RegisterData;
+			IP <= m_IP;
+			CPU_instruction[15:8] <= m_instruction_hi;
+			CPU_instruction[7:0] <= m_instruction_lo;
+
+			mem_rw <= m_mem_rw;
+			mem_addr <= m_mem_addr;
+			mem_data <= m_mem_data;
+
+			//Simulation
+			if (CPU_state == STATE_DECODE) begin
+				$display("IP: %08X", IP);
+				$display("Flags: %02X", CPU_flags);
+				$display("Current Instruction: %04X", CPU_instruction);
+				for (i = 0; i < 16; i = i + 1) $display("R%02d: %02X", i, CPU_registers[i]);
+				$display("-----------------------\n");
+			end
+
+		end
 	end
 
 endmodule
