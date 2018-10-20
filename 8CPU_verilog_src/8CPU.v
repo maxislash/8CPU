@@ -41,7 +41,6 @@ module alu(
 endmodule
 
 
-
 module mem(
 	input clk,
 	input rw,
@@ -280,7 +279,7 @@ module control_unit(
 	end
 
 	integer i;
-	
+
 	always @(posedge clk) begin
 		if (rst) begin
 			// reset
@@ -324,5 +323,31 @@ module control_unit(
 
 		end
 	end
+
+endmodule
+
+
+
+// 8CPU top level
+module CPU(
+	input clk,
+	input rst);
+
+	wire [3:0] alu_op;
+	wire [7:0] alu_a;
+	wire [7:0] alu_b;
+	wire [7:0] alu_c;
+	wire [7:0] alu_flags;
+	wire [7:0] alu_newFlags;
+	wire mem_rw;
+	wire [15:0] mem_addr;
+	wire [7:0] mem_data;
+	wire [7:0] mem_Q;
+
+	control_unit cu(.clk(clk), .rst(rst), .alu_op(alu_op), .alu_a(alu_a), .alu_b(alu_b), .alu_flags(alu_flags), .alu_newFlags(alu_newFlags), .alu_c(alu_c), .mem_rw(mem_rw), .mem_addr(mem_addr), .mem_data(mem_data), .mem_Q(mem_Q));
+
+	alu alu(.op(alu_op), .A(alu_a), .B(alu_b), .flags(alu_flags), .C(alu_c), .newFlags(alu_newFlags));
+
+	mem mem(.clk(memClk), .rw(mem_rw), .addr(mem_addr), .data(mem_data), .q(mem_Q));
 
 endmodule

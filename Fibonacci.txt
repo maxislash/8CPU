@@ -1,0 +1,25 @@
+Fibonacci - C
+
+int fibonacci(int n) {
+	if(n == 0 && n == 1) return n;
+	else return (fibonacci(n-1) + fibonacci(n-2));
+}
+
+
+int main() {
+	int n = 3;
+	fibonacci(3);
+	return 0;
+}
+
+
+
+ASSEMBLY
+
+0000	movi R1, 3
+0001	movi R0, 0
+0002	movi R2, 1
+0003	cmp R0, R1
+0004	je XXX
+0005	cmp R2, R1
+0006	je XXX
