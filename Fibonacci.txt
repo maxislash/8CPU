@@ -12,14 +12,91 @@ int main() {
 	return 0;
 }
 
+----------------------------------
 
+int fibo_it(int n) {
 
-ASSEMBLY
+	int a = 0;
+	int b = 1;
+	int temp;
 
-0000	movi R1, 3
-0001	movi R0, 0
-0002	movi R2, 1
-0003	cmp R0, R1
-0004	je XXX
-0005	cmp R2, R1
-0006	je XXX
+	while(b < n)
+		temp = b + a;
+		a = b
+		b = temp;
+		print("%d", temp);
+	}
+}
+
+--------------------------------
+
+int fibo_it_unrolled(3) {
+	int a = 0;
+	int b = 1;
+	int temp;
+
+	temp = b + a; 	//temp = 1 | i = 0
+	a = b;	//1
+	b = temp;	//1
+
+	temp = b + a; 	//temp = 2 | i = 1
+	a = b;	//1
+	b = temp;	//2
+
+	temp = b + a 	//temp = 3 | i = 2
+	a = b	//2
+	b = temp	//3
+}
+
+ASSEMBLY - unrolled
+
+0000	movi 	R0, 0		
+0001	movi 	R1, 1
+0002	add  	R0, R1
+0003 	movrr 	R2, R0
+0004	movrr	R0, R1
+0005 	movrr	R1, R2
+0006	add  	R0, R1
+0007    movrr 	R2, R0
+0008	movrr	R0, R1
+0009 	movrr	R1, R2
+000A	add  	R0, R1
+000B    movrr 	R2, R0
+000C	movrr	R0, R1
+000D 	movrr	R1, R2
+
+0010000000000000
+0010000100000001
+0000000000000001
+0001000000100000
+0001000000000001
+0001000000010010
+0000000000000001
+0001000000100000
+0001000000000001
+0001000000010010
+0000000000000001
+0001000000100000
+0001000000000001
+0001000000010010
+
+ASSEMBLY - iteration rolled
+
+0000	movi 	R0, 0		
+0001	movi 	R1, 1
+0002	movi	R3, 3
+0003	add  	R0, R1
+0004 	movrr 	R2, R0
+0005	movrr	R0, R1
+0006 	movrr	R1, R2
+0007	cmp		R1, R3
+0008	jg		-5
+
+0010000000000000
+0010000100000001
+0010001100000011
+0000000000000001
+0001000000100000
+0001000000000001
+0001000000010010
+0100001111111011
