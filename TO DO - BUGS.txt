@@ -1,6 +1,5 @@
 TO DO:
 	
-	- IO, or at least debugging tools
 	- simulation
 
 

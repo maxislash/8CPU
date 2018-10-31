@@ -62,7 +62,11 @@ module mem(
 		mem[8] = 8'b00100000; mem[9] = 8'b00010000;
 		mem[10] = 8'b00000001; mem[11] = 8'b00010000;
 		mem[12] = 8'b00010010; mem[13] = 8'b00010000;
-		mem[14] = 8'b11111011; mem[15] = 8'b01000011;	
+		mem[14] = 8'b00010011; mem[15] = 8'b00000110;
+		mem[16] = 8'b11111011; mem[17] = 8'b01000011;	
+		mem[18] = 8'b00000000; mem[19] = 8'b00101110;
+		mem[20] = 8'b00110010; mem[21] = 8'b00101111;
+		mem[22] = 8'b00010000; mem[23] = 8'b00010010;
 	end
 
 	always @(posedge clk) begin
@@ -116,17 +120,17 @@ module control_unit(
 	reg [15:0] m_mem_addr;
 	reg [7:0] m_mem_data;
 
-	parameter	STATE_FETCH_LO		= 4'b0000,
-				STATE_FETCH_LO_READ = 4'b0001,
-				STATE_FETCH_HI		= 4'b0010,
-				STATE_FETCH_HI_READ = 4'b0011,
-				STATE_DECODE		= 4'b0100,
-				STATE_EXE_ALU		= 4'b0101,
-				STATE_EXE_JUMP		= 4'b0110,
-				STATE_EXE_MOVE_RTR	= 4'b0111,
-				STATE_EXE_MOVE_MTR	= 4'b1000,
-				STATE_EXE_MOVE_RTM	= 4'b1001,
-				STATE_EXE_MOVE_IMM	= 4'b1010;
+	parameter	STATE_FETCH_LO		= 4'b0000,  //0
+				STATE_FETCH_LO_READ = 4'b0001,  //1
+				STATE_FETCH_HI		= 4'b0010,  //2
+				STATE_FETCH_HI_READ = 4'b0011,  //3
+				STATE_DECODE		= 4'b0100,  //4
+				STATE_EXE_ALU		= 4'b0101,  //5 
+				STATE_EXE_JUMP		= 4'b0110,  //6
+				STATE_EXE_MOVE_RTR	= 4'b0111,  //7 
+				STATE_EXE_MOVE_MTR	= 4'b1000,  //8
+				STATE_EXE_MOVE_RTM	= 4'b1001,  //9
+				STATE_EXE_MOVE_IMM	= 4'b1010;  //a
 
 	parameter	INSTR_ALU	= 4'b0000,
 				INSTR_MOVE	= 4'b0001,
@@ -144,8 +148,8 @@ module control_unit(
 
 	assign alu_flags = CPU_flags;
 
-	always @(CPU_state or IP or mem_Q) begin
-
+	always @(CPU_state or IP or mem_Q or CPU_instruction or CPU_registers or alu_c or alu_newFlags or CPU_flags) begin
+        
 		// Default assignements
 		m_mem_rw = 0;
 		m_IP = IP;
@@ -161,7 +165,7 @@ module control_unit(
 			end
 
 			STATE_FETCH_LO_READ: begin
-				m_instruction_lo = mem_Q;
+				#1 m_instruction_lo = mem_Q;
 				CPU_nextState = STATE_FETCH_HI;
 			end
 
@@ -171,7 +175,7 @@ module control_unit(
 			end
 
 			STATE_FETCH_HI_READ: begin
-				m_instruction_hi = mem_Q;
+				#1 m_instruction_hi = mem_Q;
 				CPU_nextState = STATE_DECODE;
 			end
 
@@ -305,6 +309,7 @@ module control_unit(
 			IP <= 16'h0000;
 			CPU_flags <= 'd0;
 			CPU_state <= 'd0;
+			//CPU_nextState <= 'd0;
 			mem_addr <= 'd0;
 			mem_data <= 'd0;
 			mem_rw <= 0;
@@ -357,6 +362,6 @@ module CPU(
 
 	alu alu(.op(alu_op), .A(alu_a), .B(alu_b), .flags(alu_flags), .C(alu_c), .newFlags(alu_newFlags));
 
-	mem mem(.clk(memClk), .rw(mem_rw), .addr(mem_addr), .data(mem_data), .q(mem_Q));
+	mem mem(.clk(clk), .rw(mem_rw), .addr(mem_addr), .data(mem_data), .q(mem_Q));
 
 endmodule
