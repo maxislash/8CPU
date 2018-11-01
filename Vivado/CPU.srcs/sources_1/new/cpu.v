@@ -62,8 +62,8 @@ module mem(
 		mem[8] = 8'b00100000; mem[9] = 8'b00010000;
 		mem[10] = 8'b00000001; mem[11] = 8'b00010000;
 		mem[12] = 8'b00010010; mem[13] = 8'b00010000;
-		mem[14] = 8'b00010011; mem[15] = 8'b00000110;
-		mem[16] = 8'b11111011; mem[17] = 8'b01000011;	
+		mem[14] = 8'b00110001; mem[15] = 8'b00000110;
+		mem[16] = 8'b11111011; mem[17] = 8'b01000011;	//jg
 		mem[18] = 8'b00000000; mem[19] = 8'b00101110;
 		mem[20] = 8'b00110010; mem[21] = 8'b00101111;
 		mem[22] = 8'b00010000; mem[23] = 8'b00010010;
@@ -262,8 +262,8 @@ module control_unit(
 			end
 
 			STATE_EXE_JUMP: begin
-				if(CPU_instruction[7]) calc_IP = m_IP - ((~(CPU_instruction[6:0]) + 1) << 1);
- 				else calc_IP = m_IP + (CPU_instruction[6:0] << 1);	
+				if(CPU_instruction[7]) calc_IP = m_IP - {8'b00000000, ((~CPU_instruction[6:0]) + 1'b1) << 1};
+ 				else calc_IP = m_IP + ((CPU_instruction[6:0]) << 1);	
 
  				m_IP = m_IP + 2;
 				case(CPU_instruction[11:8])

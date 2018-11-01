@@ -12,7 +12,7 @@ module CPU_tb ();
 		rst = 1;
 
 		#80 rst = 0;
-		#5000 $finish;
+		#9000 $finish;
 	end
 
 	always #20 clk = !clk;

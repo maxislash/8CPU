@@ -26,7 +26,7 @@ Now, let's start the instruction set:
 	xor					0000 0100 AAAA BBBB | xor RA, RB | RA <= RA ^ RB
 	not					0000 0101 AAAA xxxx | not RA     | RA <= ~RA
 	cmp 				0000 0110 AAAA BBBB | cmp RA, RB | newFlags[EQ_BIT] = (RA == RB);
-													   newFlags[GRT_BIT] = (RA > RB);
+													   		newFlags[GRT_BIT] = (RA > RB);
 
 	Move:
 	reg to reg 			0001 0000 AAAA BBBB | movrr RA, RB 		| RA <= RB

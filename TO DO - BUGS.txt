@@ -1,12 +1,11 @@
 TO DO:
 	
-	- simulation
+	- Clean
+	- Com
+	- #1 read instruction
+	- memory file
+	- assembler
 
 
 BUGS TO CHECK:
 
-	- is fetching the instruction done correctly?
-		Afraid that the PC doesn't change at the right time to get the other part of the instruction
-
-	- is move mem done correctly/
-		Afraid that the mem doesn't have the time to send the information or receive it: RTM and MTR

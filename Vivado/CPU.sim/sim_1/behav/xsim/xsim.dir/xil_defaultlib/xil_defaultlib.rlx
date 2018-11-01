@@ -2,6 +2,6 @@
 2018.2
 Jun 14 2018
 20:41:02
-C:/Users/mdescos/Documents/CPU/CPU.sim/sim_1/behav/xsim/glbl.v,1529022455,verilog,,,,glbl,,,,,,,,
-C:/Users/mdescos/Documents/CPU/CPU.srcs/sim_1/new/cpu_tb.v,1541024831,verilog,,,,CPU_tb,,,,,,,,
-C:/Users/mdescos/Documents/CPU/CPU.srcs/sources_1/new/cpu.v,1541026079,verilog,,C:/Users/mdescos/Documents/CPU/CPU.srcs/sim_1/new/cpu_tb.v,,CPU;alu;control_unit;mem,,,,,,,,
+C:/Users/mdescos/Documents/GitHub/8CPU/Vivado/CPU.sim/sim_1/behav/xsim/glbl.v,1529022455,verilog,,,,glbl,,,,,,,,
+C:/Users/mdescos/Documents/GitHub/8CPU/Vivado/CPU.srcs/sim_1/new/cpu_tb.v,1541108136,verilog,,,,CPU_tb,,,,,,,,
+C:/Users/mdescos/Documents/GitHub/8CPU/Vivado/CPU.srcs/sources_1/new/cpu.v,1541107696,verilog,,C:/Users/mdescos/Documents/GitHub/8CPU/Vivado/CPU.srcs/sim_1/new/cpu_tb.v,,CPU;alu;control_unit;mem,,,,,,,,
