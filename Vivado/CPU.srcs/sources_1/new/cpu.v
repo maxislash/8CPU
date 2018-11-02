@@ -148,14 +148,22 @@ module control_unit(
 
 	assign alu_flags = CPU_flags;
 
-	always @(CPU_state or IP or mem_Q or CPU_instruction or CPU_registers or alu_c or alu_newFlags or CPU_flags) begin
+	always @* begin //(CPU_state or IP or mem_Q or CPU_instruction or alu_c or alu_newFlags or CPU_flags or CPU_registers)
         
 		// Default assignements
+		CPU_nextState = STATE_FETCH_LO;
 		m_mem_rw = 0;
 		m_IP = IP;
 		m_flags = CPU_flags;
 		m_instruction_lo = CPU_instruction[7:0];
 		m_instruction_hi = CPU_instruction[15:8];
+		m_RegisterAddr = 'd0;
+		m_RegisterData = CPU_registers[0];
+		alu_op = CPU_instruction[11:8];
+        alu_a = CPU_registers[CPU_instruction[7:4]];
+        alu_b = CPU_registers[CPU_instruction[3:0]];
+        m_mem_addr = 'd0;
+        m_mem_data = 'd0;
 
 		case(CPU_state)
 
@@ -285,7 +293,7 @@ module control_unit(
 
 					JUMP_IF_NOT_GREATER: begin
 						if (!CPU_flags[GRT_BIT]) m_IP = calc_IP;
-					end
+					end			
  				endcase
  				CPU_nextState = STATE_FETCH_LO;
 			end
@@ -309,7 +317,6 @@ module control_unit(
 			IP <= 16'h0000;
 			CPU_flags <= 'd0;
 			CPU_state <= 'd0;
-			//CPU_nextState <= 'd0;
 			mem_addr <= 'd0;
 			mem_data <= 'd0;
 			mem_rw <= 0;

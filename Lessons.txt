@@ -2,3 +2,5 @@ Lessons: (what did I learn in that project)
 
 	- clearly separate combinational and sequential parts. No outputs or inside real registers should be updated during the combinational. Instead use intermediate variable to hold the values.
 	- Verilog isn't as strongly typed as VHDL, so errors can come from that. Be careful with arrays range when you assigned one reg to another (ex line 265 calc_IP)
+	- Inferred latches: default assignements for variable (or default case)
+	
