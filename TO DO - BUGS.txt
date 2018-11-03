@@ -1,6 +1,5 @@
 TO DO:
 	
-	- Com
 	- #1 read instruction
 	- memory file
 	- assembler

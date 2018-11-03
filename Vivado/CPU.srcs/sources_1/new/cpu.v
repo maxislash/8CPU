@@ -2,6 +2,7 @@
  * Maxime Descos - descos.maxime@gmail.com
  */
 
+//ALU module - 7 operations
 module alu(
 	input [3:0] op	,
 	input [7:0] A 	,
@@ -40,7 +41,7 @@ module alu(
 	end
 endmodule
 
-
+//Memory module - single port - 256 entries - 8bit data - synchronous - 16bit address
 module mem(
 	input clk,
 	input rw,
@@ -79,6 +80,7 @@ module mem(
 
 endmodule
 
+//CPU heart - 16 8-bit registers - 16bit instruction
 module control_unit(
 	input clk,
 	input rst,
@@ -165,7 +167,7 @@ module control_unit(
         m_mem_addr = 'd0;
         m_mem_data = 'd0;
 
-		case(CPU_state)
+		case(CPU_state) //Finite State Machine - 11 states - 4 to fetch - 1 to decode - 1 for ALU execution - 1 for branch - 4 for load and store - 6 stages pipeline (fetch - decode - execute)
 
 			STATE_FETCH_LO: begin
 				m_mem_addr = m_IP;
@@ -270,7 +272,7 @@ module control_unit(
 			end
 
 			STATE_EXE_JUMP: begin
-				if(CPU_instruction[7]) calc_IP = m_IP - {8'b00000000, ((~CPU_instruction[6:0]) + 1'b1) << 1};
+				if(CPU_instruction[7]) calc_IP = m_IP - {8'b00000000, ((~CPU_instruction[6:0]) + 1'b1) << 1}; //Two's complement if offset for IP is negative
  				else calc_IP = m_IP + ((CPU_instruction[6:0]) << 1);	
 
  				m_IP = m_IP + 2;
@@ -303,7 +305,7 @@ module control_unit(
 
 	integer i;
 
-	always @(posedge clk) begin
+	always @(posedge clk) begin //Sequential block to go to next state and update signals
 		if (rst) begin
 			// reset
 			CPU_registers[0] <= 'd0; CPU_registers[1] <= 'd0;
@@ -335,7 +337,7 @@ module control_unit(
 			mem_addr <= m_mem_addr;
 			mem_data <= m_mem_data;
 
-			//Simulation
+			//Simulation - debug purpose
 			if (CPU_state == STATE_DECODE) begin
 				$display("IP: %08X", IP);
 				$display("Flags: %02X", CPU_flags);
