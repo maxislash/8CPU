@@ -1,6 +1,6 @@
-Here is the log of the design of an 8-bit CPU I want to design using VHDL and Vivado.
+Here is the log of the design of an 8-bit CPU I want to design using Verilog and Vivado.
 
-My last VHDL project was a branch predictor less than a year ago. I want to do this on my own to brush up my digital design skills.
+My last HDL project was a branch predictor less than a year ago. I want to do this on my own to brush up my digital design skills.
 
 I had the idea of this project from my friend who did the same using Verilog (maybe my next project who knows) https://sergeev.io/projects/v8cpu/
 
