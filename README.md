@@ -1,2 +1,2 @@
 # 8CPU
-8-bit CPU in VHDL
+8-bit CPU in Verilog
